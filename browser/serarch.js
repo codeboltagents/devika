@@ -3,7 +3,7 @@ const { getJson } = require("serpapi");
 class GoogleSearch {
     constructor() {
         this.engine = "google";
-        this.apiKey = "2f5a310e22815f5e2bccfcb6c2ff50eed148f62907617c44f745bdee6d426e23+3333";
+        this.apiKey = "";
         this.result=[];
     }
 
