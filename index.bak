@@ -1,0 +1,131 @@
+const codebolt = require('@codebolt/codeboltjs');
+const {Answer, Action, Coder, Decision, Feature, Formatter, InternalMonologue, Patcher, Planner, Reporter} = require('./agents');
+
+
+(async () => {
+  await codebolt.waitForConnection();
+  // let actionObject = new Action();
+  // let template = await actionObject.execute({
+  //   "conversation": ["Hello", "What is 2+2?"]
+  // });
+  // console.log("The Response Template"+template)
+  // codebolt.chat.sendMessage(template[0]);
+
+  // let answerObject = new Answer();
+  // let template = await answerObject.execute({
+  //   "conversation": ["Hello", "What is console.log?"],
+  //   "code_markdown": "console.log('Hello')"
+  // });
+  // codebolt.chat.sendMessage(template);
+
+  // let coderObject = new Coder();
+  // let response = await coderObject.execute({
+  //   "step_by_step_plan": "Create two new Files named hi1.js and hi2.js, and write console.log('Hello World') in it",
+  //   "user_context": "Create a Simple File"
+  // });
+  // console.log(response);
+  // codebolt.chat.sendMessage("Hi");
+  // for (let i = 0; i < response.length; i++) {
+  //   codebolt.fs.createFile(response[i].file, response[i].code, "./")
+  // }
+
+
+  // let decisionObject = new Decision();
+  // let response = await decisionObject.execute({
+  //   "prompt": "Write a binary tree search"
+  // });
+  // console.log(response);
+  // codebolt.chat.sendMessage("Hi");
+
+  // let featureObject = new Feature();
+  // let response = await featureObject.execute({
+  //   "conversation": ["Hello", "What is console.log?", "Add a curl to google.com and print the response"],
+  //   "code_markdown": "```js \nconsole.log('Hello World') \n```",
+  //   "system_os": "windows"
+  // });
+  // console.log(featureObject.compiledTemplate)
+
+
+  // let formatterObject = new Formatter();
+  // let response = await formatterObject.execute({
+  //   "raw_text":"Hi hello"
+  // })
+
+  // let internal_monologueObject = new InternalMonologue();
+  // let response= await internal_monologueObject.execute({
+  //   "current_prompt":"create a file and write hello world in it"
+  // })
+  //  console.log(internal_monologueObject.compiledTemplate)
+
+
+  //  let patcherObject = new Patcher();
+  // let response = await patcherObject.execute({
+  //   "conversation": ["Hello", "What is console.log?", "Add a curl to google.com and print the response"],
+  //   "code_markdown": "```js \nconsole.log('Hello World') \n```",
+  //   "commands": ["npm start"],
+  //   "error":"uuid module not found",
+  //   "system_os":"ios"
+  // });
+  // console.log(patcherObject.compiledTemplate)
+  // console.log(response);
+
+  // let plannerObject = new Planner();
+  // let response = await plannerObject.execute({
+  //   "prompt":"create index.js file and write hello world in it"
+  // });
+  // console.log(plannerObject.compiledTemplate)
+  // console.log(response);
+  // codebolt.chat.sendMessage("Hi");
+  //let response = await codebolt.terminal.executeCommand("npm start");
+
+  //console.log(response);
+
+  //   let reporterObject = new Reporter();
+  // let response = await reporterObject.execute({
+  //   "conversation": ["Hello", "What is console.log?", "Add a curl to google.com and print the response"],
+  //   "code_markdown": "```js \nconsole.log('Hello World') \n```",
+  // });
+  // console.log(reporterObject.compiledTemplate)
+  // console.log(response);
+
+  //executeCommandRunUntilError
+  //executeCommandRunUnitlIntrupt
+  //executeCommandWithStream
+  // let response = await codebolt.terminal.executeCommand("npm start");
+  //  codebolt.terminal.executeCommandRunUnitlInterrupt("npm start").then(response=>{
+  //   console.log("server stopped")
+  //   console.log(response);
+  // })
+  // await codebolt.terminal.sendManualInterrupt();
+  // let executeCommandWithStream =  codebolt.terminal.executeCommandWithStream("npm start");
+  // console.log(executeCommandWithStream);
+  //   executeCommandWithStream.on('serverEvents', (event) => {
+  //     console.log("stream event",event);
+  // });
+
+  // response.on("serverEvents"), (event) => {
+  //   console.log(event);
+  // }
+  //executeCommandRunUntilError
+  //executeCommandRunUnitlIntrupt
+  //executeCommandWithStream
+  // let response = await codebolt.terminal.executeCommand("npm start");
+  //  codebolt.terminal.executeCommandRunUnitlInterrupt("npm start").then(response=>{
+  //   console.log("server stopped")
+  //   console.log(response);
+  // })
+  // await codebolt.terminal.sendManualInterrupt();
+  // let executeCommandWithStream =  codebolt.terminal.executeCommandWithStream("npm start");
+  // console.log(executeCommandWithStream);
+  //   executeCommandWithStream.on('serverEvents', (event) => {
+  //     console.log("stream event",event);
+  // });
+
+  // response.on("serverEvents"), (event) => {
+  //   console.log(event);
+  // }
+  let response =await codebolt.vectordb.addVectorItem("this is red");
+   codebolt.debug(response,'info');
+
+})();
+
