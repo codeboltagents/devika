@@ -12,6 +12,7 @@
     "@shopping24/rake-js": "^2.2.1",
     "fs": "^0.0.1-security",
     "handlebars": "^4.7.8",
+    "node-rake": "^1.0.1",
     "retext": "^9.0.0",
     "retext-keywords": "^8.0.1",
     "serpapi": "^2.1.0"

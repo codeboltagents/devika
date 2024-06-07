@@ -15,12 +15,10 @@ class Patcher extends BaseAgent{
 
     validate_response(response) {
         response = response.trim();
-
         let start = response.indexOf("~~~") + 3;
         let end = response.lastIndexOf("~~~");
         response = response.slice(start, end).trim();
         response = response.trim();
-
         let result = [];
         let current_file = null;
         let current_code = [];
