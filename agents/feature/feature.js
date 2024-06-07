@@ -1,12 +1,13 @@
 const BaseAgent = require('../BaseAgent');
 const codebolt = require('@codebolt/codeboltjs').default;
-
+const fs = require('fs')
 class Feature extends BaseAgent{
 
     templatePath = `${__dirname}/prompt.handlebars`;
 
     validate_response(response) {
         response = response.trim();
+
         let start = response.indexOf("~~~") + 3;
         let end = response.lastIndexOf("~~~");
         response = response.slice(start, end).trim();
@@ -36,6 +37,10 @@ class Feature extends BaseAgent{
             result.push({file: current_file, code: current_code.join("\n")});
         }
 
+        if (result.length === 0) {
+            console.log("No files found in the response.");
+        }
+
         return result;
     }
 
@@ -49,6 +54,7 @@ class Feature extends BaseAgent{
         }
         // return file_path_dir;
     }
+    
 
     // emulate_code_writing(code_set, project_name) {
     //     for (const file of code_set) {
@@ -80,3 +86,5 @@ class Feature extends BaseAgent{
 }
 
 module.exports = Feature;
+
+
