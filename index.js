@@ -186,7 +186,8 @@ async function subsequentExecute(prompt, projectName) {
     // this.agentState.setAgentActive(projectName, false);
     // this.agentState.setAgentCompleted(projectName, true);
   } catch (error) {
-    codebolt.chat.sendMessage("An error occurred. Please try again later.");
+    console.log(error)
+    codebolt.chat.sendMessage("An error occurred. Please try again later.",error);
     codebolt.chat.stopProcess();
   }
 }
@@ -211,10 +212,11 @@ codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
     let { payload } = await codebolt.cbstate.getAgentState();
 
     if (payload && payload.mainTaskFinished) {
-      let userChatLister = codebolt.chat.userMessageListener();
-      userChatLister.on("userMessage", (message) => {
-        subsequentExecute(message);
-      })
+      
+      let prompt = req.message.userMessage;
+      // userChatLister.on("userMessage", (message) => {
+        subsequentExecute(prompt);
+      // })
      
     }
     else {
@@ -299,7 +301,7 @@ codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
 
       // this.agentState.setAgentActive(projectName, true);
 
-      const searchResults = {}; // queries && queries.length > 0 ? await searchQueries(queries) : {};
+      const searchResults =  queries && queries.length > 0 ? await searchQueries(queries) : {};
       console.log(searchResults)
 
       const code = await coder.execute({
@@ -322,14 +324,15 @@ codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
       await codebolt.cbstate.addToAgentState('mainTaskFinished', true);
       codebolt.git.commit("mainTaskFinished")
 
-      let userChatLister = codebolt.chat.userMessageListener();
-      userChatLister.on("userMessage", (message) => {
-        subsequentExecute(message);
-      })
+      // let userChatLister = codebolt.chat.userMessageListener();
+      // userChatLister.on("userMessage", (message) => {
+      //   subsequentExecute(message);
+      // })
     }
   }
   catch (error) {
-    codebolt.chat.sendMessage("An error occurred. Please try again later.");
+    console.log(error)
+    codebolt.chat.sendMessage("An error occurred. Please try again later.",error);
     codebolt.chat.stopProcess();
   }
   })
