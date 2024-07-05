@@ -1,4 +1,6 @@
-name: codeboltagent
+name: codebolt-devika
+unique_connectionid: codebolt_pilot
+initial_message: Hi, I am your AI developer friend. What do you want me to do?
 description: A basic agent for codebolt
 tags: 
     - devika

@@ -1,5 +1,8 @@
 const codebolt = require('@codebolt/codeboltjs').default;
 const { GoogleSearch } = require('./browser/serarch');
+const os = require('os');
+
+const osType = os.type();
 const {
   Answer,
   Action,
@@ -36,27 +39,189 @@ const runner = new Runner()
 
 
 
-async function execute() {
+
+// codebolt.chat.eventEmitter.addListener()
+// }
+/**
+ * 
+ * @param {*} url 
+ * @returns 
+ */
+async function openPage(url) {
+  await codebolt.waitForConnection();
+  await codebolt.browser.newPage();
+  await codebolt.browser.goToPage(url);
+  const { text } = await codebolt.browser.extractText();
+  await codebolt.browser.close();
+  return { data: text }
 
 
+}
+/**
+ * 
+ * @param {*} queries 
+ * @param {*} projectName 
+ * @returns 
+ */
+async function searchQueries(queries, projectName) {
+  let results = {};
+
+  let webSearch = new GoogleSearch();
+
+  for (let query of queries) {
+    query = query.trim().toLowerCase();
+
+
+
+    await webSearch.search(query);
+    const link = webSearch.getFirstLink()
+    console.log("\nLink :: ", link, '\n');
+    if (!link) {
+      continue;
+    }
+    const [data] = await openPage(link);
+    // emitAgent("screenshot", { "data": raw, "project_name": projectName }, false);
+    results[query] = await formatter.execute(data);
+
+    // this.logger.info(`got the search results for : ${query}`);
+    // knowledgeBase.addKnowledge(tag=query, contents=results[query]);
+  }
+  return results;
+}
+/**
+ * 
+ * @param {*} prompt 
+ * @param {*} projectName 
+ */
+async function subsequentExecute(prompt, projectName) {
+  try {
+
+
+    // const newMessage = this.projectManager.newMessage();
+    // newMessage.message = prompt;
+    // newMessage.fromDevika = false;
+    // this.projectManager.addMessageFromUser(projectName, newMessage.message);
+    // codebolt.chat.processStarted();
+    const osSystem = osType;
+
+    // this.agentState.setAgentActive(projectName, true);
+    let projectPath;
+    const appState = await codebolt.cbstate.getApplicationState();
+    projectPath = appState.state.projectState.projectPath;
+    let { chats } = await codebolt.chat.getChatHistory();
+    const conversation = await getAllMessagesFormatted(chats);
+    conversation.push((`User: ${prompt}`))
+    // projectPath = await codebolt.cbstate.getApplicationState();
+    const { markdown } = await codebolt.codeutils.getAllFilesAsMarkDown()
+    let codeMarkdown = markdown;
+    console.log(codeMarkdown);
+    let { response, action } = await actionAgent.execute({ conversation: conversation });
+    console.log(response);
+    console.log("\naction :: ", action, '\n');
+    await codebolt.chat.sendMessage(response);
+    //
+    if (action === "run") {
+      await runner.execute({
+        conversation: conversation,
+        code_markdown: codeMarkdown,
+        system_os: osSystem,
+        projectPath,
+        projectName
+      });
+    }
+    else if (action === "answer") {
+      const response = await answer.execute({
+        conversation,
+        code_markdown: codeMarkdown,
+        projectName
+      });
+      codebolt.chat.sendMessage(response);
+    } else if (action === "deploy") {
+      // const deployMetadata = Netlify.deploy(projectName);
+      // const deployUrl = deployMetadata.deployUrl;
+
+      // const response = {
+      //     message: "Done! I deployed your project on Netlify.",
+      //     deployUrl
+      // };
+      // this.projectManager.addMessageFromDevika(projectName, JSON.stringify(response, null, 4));
+    } else if (action === "feature") {
+      const code = await feature.execute({
+        conversation,
+        code_markdown: codeMarkdown,
+        systemOs: osType,
+        projectName
+      });
+      console.log("\nfeature code :: ", code, '\n');
+      feature.saveCodeToProject(code, projectName);
+      codebolt.chat.sendMessage("I have added the new feature you asked for.")
+      codebolt.git.commit("newFeaturAdded")
+    } else if (action === "bug") {
+      const code = await patcher.execute({
+        conversation,
+        code_markdown: codeMarkdown,
+        commands: null,
+        error: prompt,
+        systemOs: osSystem,
+        projectName
+      });
+      console.log("\nbug code :: ", code, '\n');
+      patcher.saveCodeToProject(code, projectName);
+      codebolt.chat.sendMessage("I have resovled bug in your code")
+    } else if (action === "report") {
+      const markdown = await reporter.execute(conversation, codeMarkdown, projectName);
+
+      // const outPdfFile = PDF.markdownToPdf(markdown, projectName);
+
+      // const projectNameSpaceUrl = projectName.replace(" ", "%20");
+      // const pdfDownloadUrl = `http://127.0.0.1:1337/api/download-project-pdf?project_name=${projectNameSpaceUrl}`;
+      // const response = `I have generated the PDF document. You can download it from here: ${pdfDownloadUrl}`;
+
+      // // await this.openPage(projectName, pdfDownloadUrl);
+
+      // this.projectManager.addMessageFromDevika(projectName, response);
+    }
+    codebolt.chat.stopProcess();
+
+    // this.agentState.setAgentActive(projectName, false);
+    // this.agentState.setAgentCompleted(projectName, true);
+  } catch (error) {
+    codebolt.chat.sendMessage("An error occurred. Please try again later.");
+    codebolt.chat.stopProcess();
+  }
+}
+
+
+
+// (async () => {
+
+//   await execute()
+
+// })();
+
+
+
+codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
+  
   try {
 
 
     await codebolt.waitForConnection();
     // Create State
     let { payload } = await codebolt.cbstate.getAgentState();
-    console.log(payload);
+
     if (payload && payload.mainTaskFinished) {
       let userChatLister = codebolt.chat.userMessageListener();
       userChatLister.on("userMessage", (message) => {
         subsequentExecute(message);
       })
-      codebolt.chat.sendMessage("Hi, I am your AI developer friend. What do you want me to do?");
+     
     }
     else {
-      let { message } = await codebolt.chat.waitforReply("Hi, I am your AI developer friend. What do you want me to do?");
-      let prompt = message;
-      codebolt.chat.processStarted();
+     
+      let prompt = req.message.userMessage;
+      // console.log(prompt)
+      // codebolt.chat.processStarted();
 
       // this.agentState.createState({ project: projectName });
       await codebolt.cbstate.addToAgentState('mainTaskFinished', false);
@@ -71,6 +236,7 @@ async function execute() {
         codebolt.taskplaner.addTask(plans[plan])
 
       }
+      codebolt.chat.sendNotificationEvent('Plan Has Been Generated','planner');
 
       codebolt.chat.sendMessage(`In summary: ${summary}`);
 
@@ -93,8 +259,8 @@ async function execute() {
       });
       console.log("\nresearch :: ", research, '\n');
 
-      const { queries, ask_user } = research;
-      // queries=["generate node js project"]
+      let { queries, ask_user } = research;
+      queries=[];
       const queriesCombined = queries.join(", ");
       // In case you missed this part in the original code
       if ((queries && queries.length > 0) || ask_user !== "") {
@@ -166,164 +332,5 @@ async function execute() {
     codebolt.chat.sendMessage("An error occurred. Please try again later.");
     codebolt.chat.stopProcess();
   }
-
-}
-// codebolt.chat.eventEmitter.addListener()
-// }
-/**
- * 
- * @param {*} url 
- * @returns 
- */
-async function openPage(url) {
-  await codebolt.waitForConnection();
-  await codebolt.browser.newPage();
-  await codebolt.browser.goToPage(url);
-  const { text } = await codebolt.browser.extractText();
-  await codebolt.browser.close();
-  return { data: text }
-
-
-}
-/**
- * 
- * @param {*} queries 
- * @param {*} projectName 
- * @returns 
- */
-async function searchQueries(queries, projectName) {
-  let results = {};
-
-  let webSearch = new GoogleSearch();
-
-  for (let query of queries) {
-    query = query.trim().toLowerCase();
-
-
-
-    await webSearch.search(query);
-    const link = webSearch.getFirstLink()
-    console.log("\nLink :: ", link, '\n');
-    if (!link) {
-      continue;
-    }
-    const [data] = await openPage(link);
-    // emitAgent("screenshot", { "data": raw, "project_name": projectName }, false);
-    results[query] = await formatter.execute(data);
-
-    // this.logger.info(`got the search results for : ${query}`);
-    // knowledgeBase.addKnowledge(tag=query, contents=results[query]);
-  }
-  return results;
-}
-/**
- * 
- * @param {*} prompt 
- * @param {*} projectName 
- */
-async function subsequentExecute(prompt, projectName) {
-  try {
-
-
-    // const newMessage = this.projectManager.newMessage();
-    // newMessage.message = prompt;
-    // newMessage.fromDevika = false;
-    // this.projectManager.addMessageFromUser(projectName, newMessage.message);
-    codebolt.chat.processStarted();
-    const osSystem = 'macOS'//platform.platform();
-
-    // this.agentState.setAgentActive(projectName, true);
-    let projectPath;
-    const appState = await codebolt.cbstate.getApplicationState();
-    projectPath = appState.state.projectState.projectPath;
-    let { chats } = await codebolt.chat.getChatHistory();
-    const conversation = await getAllMessagesFormatted(chats);
-    conversation.push((`User: ${prompt}`))
-    // projectPath = await codebolt.cbstate.getApplicationState();
-    const { markdown } = await codebolt.codeutils.getAllFilesAsMarkDown()
-    let codeMarkdown = markdown;
-    console.log(codeMarkdown);
-    let { response, action } = await actionAgent.execute({ conversation: conversation });
-    console.log(response);
-    console.log("\naction :: ", action, '\n');
-    await codebolt.chat.sendMessage(response);
-    //
-    if (action === "run") {
-      await runner.execute({
-        conversation: conversation,
-        code_markdown: codeMarkdown,
-        system_os: osSystem,
-        projectPath,
-        projectName
-      });
-    }
-    else if (action === "answer") {
-      const response = await answer.execute({
-        conversation,
-        code_markdown: codeMarkdown,
-        projectName
-      });
-      codebolt.chat.sendMessage(response);
-    } else if (action === "deploy") {
-      // const deployMetadata = Netlify.deploy(projectName);
-      // const deployUrl = deployMetadata.deployUrl;
-
-      // const response = {
-      //     message: "Done! I deployed your project on Netlify.",
-      //     deployUrl
-      // };
-      // this.projectManager.addMessageFromDevika(projectName, JSON.stringify(response, null, 4));
-    } else if (action === "feature") {
-      const code = await feature.execute({
-        conversation,
-        code_markdown: codeMarkdown,
-        systemOs: 'macOS',
-        projectName
-      });
-      console.log("\nfeature code :: ", code, '\n');
-      feature.saveCodeToProject(code, projectName);
-      codebolt.chat.sendMessage("I have added the new feature you asked for.")
-      codebolt.git.commit("newFeaturAdded")
-    } else if (action === "bug") {
-      const code = await patcher.execute({
-        conversation,
-        code_markdown: codeMarkdown,
-        commands: null,
-        error: prompt,
-        systemOs: osSystem,
-        projectName
-      });
-      console.log("\nbug code :: ", code, '\n');
-      patcher.saveCodeToProject(code, projectName);
-      codebolt.chat.sendMessage("I have resovled bug in your code")
-    } else if (action === "report") {
-      const markdown = await reporter.execute(conversation, codeMarkdown, projectName);
-
-      // const outPdfFile = PDF.markdownToPdf(markdown, projectName);
-
-      // const projectNameSpaceUrl = projectName.replace(" ", "%20");
-      // const pdfDownloadUrl = `http://127.0.0.1:1337/api/download-project-pdf?project_name=${projectNameSpaceUrl}`;
-      // const response = `I have generated the PDF document. You can download it from here: ${pdfDownloadUrl}`;
-
-      // // await this.openPage(projectName, pdfDownloadUrl);
-
-      // this.projectManager.addMessageFromDevika(projectName, response);
-    }
-    codebolt.chat.stopProcess();
-
-    // this.agentState.setAgentActive(projectName, false);
-    // this.agentState.setAgentCompleted(projectName, true);
-  } catch (error) {
-    codebolt.chat.sendMessage("An error occurred. Please try again later.");
-    codebolt.chat.stopProcess();
-  }
-}
-
-
-
-(async () => {
-
-  await execute()
-
-})();
+  })
 
