@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@codebolt/codeboltjs": "^1.1.52",
+    "@codebolt/codeboltjs": "^1.1.57",
     "@shopping24/rake-js": "^2.2.1",
     "fs": "^0.0.1-security",
     "handlebars": "^4.7.8",
