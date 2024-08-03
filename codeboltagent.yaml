@@ -1,55 +1,63 @@
-name: codebolt-devika
-unique_connectionid: codebolt_pilot
+title: codebolt-devika
+unique_id: codebolt_pilot
 initial_message: Hi, I am your AI developer friend. What do you want me to do?
 description: A basic agent for codebolt
-agent_routing:
-  worksonblankcode: true
-  worksonexistingcode: true
-  softwaredevprocessmanaged:
-    - projectplanning
-    - codegeneration
-    - codetesting
-  supportedlanguages:
-    - all
-    - javascript
-    - typescript
-    - python
-  supportedframeworks:
-    - all
-    - nextjs
-    - reactjs
-    - nodejs
 tags:
   - devika
   - code-generation
-long_description: |
-  ## Codebolt Agent
-  A basic agent designed for the Codebolt platform, offering a range of functionalities to enhance interaction with the platform.
-avatar_src: https://placehold.co/200x200
-defaultagentllm:
-  strict: true
-  modelorder:
-    - ollama1
-llm_role:
-  - name: documentationllm
-    description: LLM to be used for Documentation. Please select a model that is good for documentation. Might not be best for coding be for documentation like codellama2.   (show model order as suggetion)
+longDescription: |
+ A basic agent designed for the Codebolt platform, offering a range of functionalities to enhance interaction with the platform.
+avatarSrc: https://placehold.co/200x200
+metadata:
+  agent_routing:
+    worksonblankcode: true
+    worksonexistingcode: true
+    softwaredevprocessmanaged:
+      - projectplanning
+      - codegeneration
+      - codetesting
+    supportedlanguages:
+      - all
+      - javascript
+      - typescript
+      - python
+    supportedframeworks:
+      - all
+      - nextjs
+      - reactjs
+      - nodejs
+  defaultagentllm:
     strict: true
     modelorder:
-      - gpt-4-turbo
-      - gpt-3.5-turbo
-      - mistral7b.perplexity
-      - mistral7b.any
-      - llama2-70b
-      - llama2-15b
-      - group.documentationmodels
-  - name: testingllm
-    strict: true
-    modelorder:
-      - gpt-4-turbo
-      - gpt-3.5-turbo
-      - mistral7b.perplexity
-      - mistral7b.any
-      - llama2-70b
-      - llama2-15b
-      - group.documentationmodels
-  - name: actionllm
+      - ollama1
+  llm_role:
+    - name: documentationllm
+      description: LLM to be used for Documentation. Please select a model that is good for documentation. Might not be best for coding be for documentation like codellama2.   (show model order as suggetion)
+      strict: true
+      modelorder:
+        - gpt-4-turbo
+        - gpt-3.5-turbo
+        - mistral7b.perplexity
+        - mistral7b.any
+        - llama2-70b
+        - llama2-15b
+        - group.documentationmodels
+    - name: testingllm
+      strict: true
+      modelorder:
+        - gpt-4-turbo
+        - gpt-3.5-turbo
+        - mistral7b.perplexity
+        - mistral7b.any
+        - llama2-70b
+        - llama2-15b
+        - group.documentationmodels
+    - name: actionllm
+  actions:
+    - name: Execute
+      description: Executes the given task.
+      detailDescription: more detailed description
+      actionPrompt: Please run this code
+    - name: Debug
+      description: Debugs the code.
+      actionPrompt: Please debug this code
